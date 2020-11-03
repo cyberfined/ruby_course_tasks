@@ -9,9 +9,9 @@ class Station
 
   def trains(type=nil)
     if type == nil
-      return @trains
+      @trains
     else
-      return @trains.select{|tr| tr.type == type}
+      @trains.select {|tr| tr.type == type}
     end
   end
 
@@ -19,8 +19,8 @@ class Station
     @trains << train
   end
 
-  def send_train(id)
-    @trains.delete_if{|tr| tr.id == id}
+  def send_train(train)
+    @trains.delete(train)
   end
 end
 
@@ -34,14 +34,12 @@ class Route
     @stations.insert(-2,station)
   end
 
-  def remove_station(title)
-    if title != @stations[0].title and title != @stations[-1].title
-      @stations.delete_if{|st| st.title == title}
-    end
+  def remove_station(st)
+    @stations.delete(st) unless st == @stations[0] || st == @stations[-1]
   end
 
   def print
-    @stations.each{|st| puts st.title}
+    @stations.each {|st| puts st.title}
   end
 end
 
@@ -63,15 +61,11 @@ class Train
   end
 
   def attach_car
-    if @speed == 0
-      @num_cars += 1
-    end
+    @num_cars += 1 if @speed == 0
   end
 
   def detach_car
-    if @speed == 0 and @num_cars > 0
-      @num_cars -= 1
-    end
+    @num_cars -= 1 if @speed == 0 && @num_cars > 0
   end
 
   def set_route(route)
@@ -80,61 +74,52 @@ class Train
   end
 
   def move_next_station
-    if @route != nil and @cur_station < @route.stations.length-1
-      @cur_station += 1
-    end
+    @cur_station += 1 if @route != nil && @cur_station < @route.stations.length-1
   end
 
   def move_prev_station
-    if @route != nil and @cur_station > 0
-      @cur_station -= 1
-    end
+    @cur_station -= 1 if @route != nil && @cur_station > 0
   end
 
   def next_station
-    if @route != nil and @cur_station < @route.stations.length-1
-      return @route.stations[@cur_station+1]
-    end
-    return nil
+    @route.stations[@cur_station+1] unless @route == nil || @cur_station >= @route.stations.length-1
   end
 
   def cur_station
-    if @route != nil
-      return @route.stations[@cur_station]
-    end
-    return nil
+    @route.stations[@cur_station] unless @route == nil
   end
 
   def prev_station
-    if @route != nil and @cur_station > 0
-      return @route.stations[@cur_station-1]
-    end
-    return nil
+    @route.stations[@cur_station-1] unless @route == nil || @cur_station <= 0
   end
 end
 
 # Station tests
 st = Station.new("st1")
-st.pass_train(Train.new("tr1", :cargo, 10))
-st.pass_train(Train.new("tr2", :cargo, 15))
-st.pass_train(Train.new("tr3", :pass, 20))
+tr1 = Train.new("tr1", :cargo, 10)
+tr2 = Train.new("tr2", :cargo, 15)
+tr3 = Train.new("tr3", :pass, 20)
+st.pass_train(tr1)
+st.pass_train(tr2)
+st.pass_train(tr3)
 
 puts "All trains at st1"
-puts st.trains.map{|tr| tr.id}
+st.trains.each {|tr| puts tr.id}
 puts "All cargo trains at st1"
-puts st.trains(:cargo).map{|tr| tr.id}
+st.trains(:cargo).each {|tr| puts tr.id}
 puts "All passenger's trains at st1"
-puts st.trains(:pass).map{|tr| tr.id}
-st.send_train("tr2")
+st.trains(:pass).each {|tr| puts tr.id}
+st.send_train(tr2)
 puts "All trains at st1 after tr2 was sent away"
-puts st.trains.map{|tr| tr.id}
+st.trains.each {|tr| puts tr.id}
 
 # Route tests
 rt = Route.new(Station.new("st1"), Station.new("st5"))
 puts "\nRoute after creation is"
 rt.print
 
-rt.append_station(Station.new("st2"))
+st2 = Station.new("st2")
+rt.append_station(st2)
 puts "Route after appending st2"
 rt.print
 
@@ -142,7 +127,7 @@ rt.append_station(Station.new("st3"))
 puts "Route after appending st3"
 rt.print
 
-rt.remove_station("st2")
+rt.remove_station(st2)
 puts "Route after removing st2"
 rt.print
 
@@ -156,7 +141,7 @@ puts "\nTrain initial speed #{tr.speed}"
 tr.start_movement
 puts "Train speed after starting engine #{tr.speed}"
 tr.stop_movement
-puts "Train speed after stopping #{tr.start_movement}"
+puts "Train speed after stopping #{tr.speed}"
 
 puts "Num of train's cars #{tr.num_cars}"
 tr.attach_car
