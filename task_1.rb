@@ -74,11 +74,11 @@ class Train
   end
 
   def move_next_station
-    @cur_station += 1 if @route != nil && @cur_station < @route.stations.length-1
+    @cur_station += 1 unless @route == nil || @cur_station >= @route.stations.length-1
   end
 
   def move_prev_station
-    @cur_station -= 1 if @route != nil && @cur_station > 0
+    @cur_station -= 1 unless @route == nil || @cur_station <= 0
   end
 
   def next_station
