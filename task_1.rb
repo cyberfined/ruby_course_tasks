@@ -70,27 +70,27 @@ class Train
 
   def set_route(route)
     @route = route
-    @cur_station = 0
+    @cur_station_index = 0
   end
 
   def move_next_station
-    @cur_station += 1 unless @route == nil || @cur_station >= @route.stations.length-1
+    @cur_station_index += 1 if next_station
   end
 
   def move_prev_station
-    @cur_station -= 1 unless @route == nil || @cur_station <= 0
+    @cur_station_index -= 1 if prev_station
   end
 
   def next_station
-    @route.stations[@cur_station+1] unless @route == nil || @cur_station >= @route.stations.length-1
+    @route.stations[@cur_station_index+1] unless @route == nil || @cur_station_index >= @route.stations.length-1
   end
 
   def cur_station
-    @route.stations[@cur_station] unless @route == nil
+    @route.stations[@cur_station_index] unless @route == nil
   end
 
   def prev_station
-    @route.stations[@cur_station-1] unless @route == nil || @cur_station <= 0
+    @route.stations[@cur_station_index-1] unless @route == nil || @cur_station_index <= 0
   end
 end
 
