@@ -13,7 +13,16 @@ class App
     @stations = []
     @routes = []
     @trains = []
+    create_menus
+  end
 
+  def run
+    @main_menu.run
+  end
+
+  private
+
+  def create_menus
     stations_menu = Menu.new
     stations_menu.add_element("Create new station", method(:create_station_handler))
     stations_menu.add_element("Show all stations", method(:show_stations_handler))
@@ -45,12 +54,6 @@ class App
     @main_menu.add_element("Routes management", routes_menu.method(:run))
     @main_menu.add_element("Trains management", trains_menu.method(:run))
   end
-
-  def run
-    @main_menu.run
-  end
-
-  private
 
   def select_menu(choices)
     menu = Menu.new
