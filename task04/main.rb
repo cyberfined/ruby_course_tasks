@@ -130,22 +130,26 @@ class App
   end
 
   # Train handlers
-  def create_cargo_train_handler
+  def create_train(type)
     tr_id = input("Enter train id: ")
-    @trains << CargoTrain.new(tr_id)
-    puts "Cargo train #{tr_id} was created"
+    train = if type == :cargo
+              CargoTrain.new(tr_id)
+            else
+              PassengerTrain.new(tr_id)
+            end
+    @trains << train
+    puts "#{type.to_s.capitalize} train #{tr_id} was created"
   rescue ArgumentError => e
     puts e.message.capitalize
     retry
   end
 
+  def create_cargo_train_handler
+    create_train(:cargo)
+  end
+
   def create_pass_train_handler
-    tr_id = input("Enter train id: ")
-    @trains << PassengerTrain.new(tr_id)
-    puts "Passenger train #{tr_id} was created"
-  rescue ArgumentError => e
-    puts e.message.capitalize
-    retry
+    create_train(:passenger)
   end
 
   def show_trains_handler
