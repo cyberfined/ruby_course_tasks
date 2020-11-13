@@ -265,10 +265,5 @@ class App
   end
 end
 
-class Text
-  include Validation
-  validate :a, :presense
-end
-
 app = App.new
 app.run
