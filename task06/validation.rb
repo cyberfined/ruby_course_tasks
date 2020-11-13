@@ -16,9 +16,8 @@ module Validation
     end
 
     def validate(at, type, *params)
-      validation_types = Validation.validation_types
-      raise "undefined validation type #{type}" unless validation_types.member? type
-      attr_validations[at] << ValidationEntry.new(at, validation_types[type], params)
+      validate_name = "validate_#{type}".to_sym
+      attr_validations[at] << ValidationEntry.new(validate_name, params)
     end
   end
 
@@ -30,53 +29,40 @@ module Validation
       false
     end
 
-    private
+    protected
 
     def validate!
-      self.class.attr_validations.each_value do |entries|
+      self.class.attr_validations.each do |at, entries|
         entries.each do |entry|
-          val = self.instance_variable_get("@#{entry.at}")
-          entry.validate(val)
+          val = self.instance_variable_get("@#{at}")
+          self.send(entry.validate_name, at, val, *entry.params)
         end
       end
     end
-  end
 
-  def self.validation_types
-    @validation_types ||= {
-      presense: method(:validate_presense),
-      format:   method(:validate_format),
-      type:     method(:validate_type)
-    }
+    def validate_presense(at, val)
+      raise ArgumentError, "#{at} must be non nil" if val == nil
+      raise ArgumentError, "#{at} must be non empty string" if val == ""
+    end
+
+    def validate_format(at, val, format)
+      raise ArgumentError, "#{at} has a wrong format" if val !~ format
+    end
+
+    def validate_type(at, val, type)
+      return if val.class == type
+      raise ArgumentError, "#{at} has a wrong type: expected #{type} but given #{val.class}"
+    end
   end
 
   private
 
   class ValidationEntry
-    attr_reader :at
+    attr_reader :validate_name, :params
 
-    def initialize(at, validate, params)
-      @at = at
-      @validate = validate
+    def initialize(validate_name, params)
+      @validate_name = validate_name
       @params = params
     end
-
-    def validate(val)
-      @validate.call(@at, val, *@params)
-    end
-  end
-
-  def self.validate_presense(at, val)
-    raise ArgumentError, "#{at} must be non nil" if val == nil
-    raise ArgumentError, "#{at} must be non empty string" if val == ""
-  end
-
-  def self.validate_format(at, val, format)
-    raise ArgumentError, "#{at} has a wrong format" if val !~ format
-  end
-
-  def self.validate_type(at, val, type)
-    return if val.class == type
-    raise ArgumentError, "#{at} has a wrong type: expected #{type} but given #{val.class}"
   end
 end
