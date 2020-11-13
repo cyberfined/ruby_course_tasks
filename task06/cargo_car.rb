@@ -1,13 +1,18 @@
 require_relative("car")
+require_relative("validation")
 
 class CargoCar < Car
+  include Validation
   attr_reader :utilized_capacity
+
+  validate :capacity, :type, Float
+  validate :capacity, :positive
 
   def initialize(capacity)
     @type = :cargo
     @capacity = capacity
     @utilized_capacity = 0
-    raise ArgumentError, "carrying must be positive" if @capacity < 0
+    validate!
   end
 
   def utilize_capacity(capacity)

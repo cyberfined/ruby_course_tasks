@@ -1,14 +1,18 @@
 require_relative("car")
+require_relative("validation")
 
 class PassengerCar < Car
+  include Validation
   attr_reader :occupied_places
+
+  validate :num_places, :type, Integer
+  validate :num_places, :positive
 
   def initialize(num_places)
     @type = :passenger
     @num_places = num_places
     @occupied_places = 0
-    raise ArgumentError, "num places must be an integer" unless @num_places.is_a? Integer
-    raise ArgumentError, "num places must be positive" if @num_places < 0
+    validate!
   end
 
   def occupy_place
